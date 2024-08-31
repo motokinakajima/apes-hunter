@@ -19,11 +19,11 @@ int thresholdPin = A6
 void setup(){}
 
 void loop(){
-    updateRegion();
-    for(int i = 0;i < sizeof(cdsSensorPins);i++){
-        for(int j = 0;j < sizeof(cdsSensorPins[i])){
+    update_region();
+    for(int i = 0;i < sizeof(cdsSensorPins) / sizeof(cdsSensorPins[0]);i++){
+        for(int j = 0;j < sizeof(cdsSensorPins[i]) / sizeof(cdsSensorPins[i][0]))){
             int hit;
-            if(cdsSensorPins[2][5] != -1){
+            if(cdsSensorPins[i][j] != -1){
                 hit = digitalRead(cdsSensorPins[i][j]);
             }else{
                 hit = LOW;
@@ -44,12 +44,13 @@ void loop(){
                     case 3: outputData[3] = HIGH; outputData[4] = HIGH; break;
                     default: outputData[3] = LOW; outputData[4] = LOW; break;
                 }
-                for(int k = 0;k < sizeof(outputData);i++){
+                for(int k = sizeof(outputData) / sizeof(outputData[0]) - 1;k > -1;k--){
                     digitalWrite(outputPins[k], outputData[k]);
                 }
+                delay(50);
             }
             else{
-                for(int k = 0;k < sizeof(outputData);i++){
+                for(int k = 0;k < sizeof(outputData) / sizeof(outputData[0]);k++){
                     digitalWrite(outputPins[k], LOW);
                 }
             }
@@ -75,7 +76,7 @@ void update_region(){
                 biggest_index = k;
             }
         }
-        int threshold = (analogRead() / 1023) * 10 + 20;
+        int threshold = (analogRead(thresholdPin) / 1023) * 10 + 20;
         if(abs(input_color[biggest_index] - avg) > threshold){
             regionColor[i] = biggest_index + 1;
         }else{
