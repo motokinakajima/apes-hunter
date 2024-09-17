@@ -14,7 +14,7 @@ int points[2][5] = {
 };
 int regionColor[2] = {0,0};
 // Red: 1, Green: 2, Blue: 3
-int thresholdPin = A6
+int thresholdPin = A6;
 
 void setup(){}
 
