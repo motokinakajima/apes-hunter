@@ -93,7 +93,7 @@ void requestEvent() {
                 Wire.write(regionColor[i]);  // 領域の色（1バイト）
                 Wire.write(points[i][j]);    // ポイント（1バイト）
 
-                Serial.print("A sent to master: ");
+                Serial.print("C sent to master: ");
                 Serial.print(regionColor[i]);
                 Serial.print(", ");
                 Serial.println(points[i][j]);
