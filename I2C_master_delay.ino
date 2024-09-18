@@ -1,5 +1,9 @@
 #include <Wire.h>
 
+unsigned long previousMillis = 0;  // 最後にデータをリクエストした時間
+const long interval = 500;         // リクエスト間隔（ミリ秒）
+const long point_interval = 1000;
+
 void setup() {
   Wire.begin();  // マスターとして初期化
   Serial.begin(9600);
