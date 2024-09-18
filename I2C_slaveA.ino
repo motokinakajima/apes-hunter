@@ -45,14 +45,19 @@ void loop() {
     // cdsSensorPinsの状態に基づいてOUTPUTピンを制御
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 5; j++) {
-            if (cdsSensorPins[i][j] != -1 && digitalRead(cdsSensorPins[i][j]) == HIGH) {
-                digitalWrite(outputPins[i][j], HIGH);  // センサーがHIGHのとき、OUTPUTピンをHIGHに
-            } else if (cdsSensorPins[i][j] != -1 && digitalRead(cdsSensorPins[i][j]) == LOW) {
-                digitalWrite(outputPins[i][j], LOW);
-            }    
+            if (cdsSensorPins[i][j] != -1) {
+                int sensorValue = digitalRead(cdsSensorPins[i][j]);
+                // センサーの値に基づいてOUTPUTピンを制御
+                if (sensorValue == HIGH) {
+                    digitalWrite(outputPins[i][j], HIGH);  // センサーがHIGHのとき、OUTPUTピンをHIGHに
+                } else {
+                    digitalWrite(outputPins[i][j], LOW);   // センサーがLOWのとき、OUTPUTピンをLOWに
+                }
+            }
         }
     }
 }
+
 
 void update_region() {
     for (int i = 0; i < 2; i++) {
