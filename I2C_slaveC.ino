@@ -37,6 +37,14 @@ void setup() {
             }
         }
     }
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (cdsSensorPins[i][j] != -1) {
+                pinMode(cdsSensorPins[i][j], INPUT_PULLUP);
+            }
+        }
+    }
+
 }
 
 void loop() {
@@ -58,33 +66,32 @@ void loop() {
     }
 }
 
+
 void update_region() {
     for (int i = 0; i < 2; i++) {
         float sum = 0;
         int input_color[3];
+        float avg = sum * (100 / 3);
+        int biggest_index = 0;
         for (int k = 0; k < 3; k++) {
             input_color[k] = analogRead(rgbSensorPins[i][k]);
             sum += input_color[k];
         }
+        if (sum > 0) {
+            for (int k = 0; k < 3; k++) {
+                input_color[k] = (input_color[k] / sum) * 100;
+            }
+            for (int k = 0; k < 3; k++) {
+                if (abs(input_color[k] - avg) > abs(input_color[biggest_index] - avg)) {
+                    biggest_index = k;
+                }
+            }
 
-        for (int k = 0; k < 3; k++) {
-            input_color[k] = (input_color[k] / sum) * 100;
-        }
-
-        float avg = sum * (100 / 3);
-        int biggest_index = 0;
-
-        for (int k = 0; k < 3; k++) {
-            if (abs(input_color[k] - avg) > abs(input_color[biggest_index] - avg)) {
-                biggest_index = k;
+            if (abs(input_color[biggest_index] - avg) > threshold) {
+                regionColor[i] = biggest_index + 1;
             }
         }
 
-        if (abs(input_color[biggest_index] - avg) > threshold) {
-            regionColor[i] = biggest_index + 1;
-        } else {
-            regionColor[i] = 0;
-        }
     }
 }
 
@@ -98,7 +105,7 @@ void requestEvent() {
                 Wire.write(regionColor[i]);  // 領域の色（1バイト）
                 Wire.write(points[i][j]);    // ポイント（1バイト）
 
-                Serial.print("C sent to master: ");
+                Serial.print("A sent to master: ");
                 Serial.print(regionColor[i]);
                 Serial.print(", ");
                 Serial.println(points[i][j]);
