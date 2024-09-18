@@ -85,6 +85,7 @@ void update_region() {
 }
 
 // I2Cリクエスト時の処理
+/*
 void requestEvent() {
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 5; j++) {
@@ -101,3 +102,29 @@ void requestEvent() {
         }
     }
 }
+*/
+
+void requestEvent() {
+    for (int i = 0; i < 2; i++) {  // 2つの領域に対してデータを送信
+        for (int j = 0; j < 5; j++) {
+            if (cdsSensorPins[i][j] != -1) {
+                int sensorValue = digitalRead(cdsSensorPins[i][j]);
+                // センサーの値に基づいて出力ピンを制御
+                if (sensorValue == HIGH) {
+                    digitalWrite(outputPins[i][j], HIGH);  // センサーがHIGHのとき、OUTPUTピンをHIGHに
+                    Wire.write(regionColor[i]);  // 領域の色（1バイト）
+                    Wire.write(points[i][j]);    // ポイント（1バイト）
+                } else {
+                    digitalWrite(outputPins[i][j], LOW);  // センサーがLOWのとき、OUTPUTピンをLOWに
+                    Wire.write(0);  // センサーがLOWの場合は0を送信
+                    Wire.write(0);  // ポイントの値も0に設定
+                }
+                Serial.print("A sent to master: ");
+                Serial.print(regionColor[i]);
+                Serial.print(", ");
+                Serial.println(points[i][j]);
+            }
+        }
+    }
+}
+
