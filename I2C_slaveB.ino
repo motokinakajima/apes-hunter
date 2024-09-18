@@ -117,18 +117,18 @@ void requestEvent() {
                 if (sensorValue == HIGH) {
                     digitalWrite(outputPins[i][j], HIGH);  // センサーがHIGHのとき、OUTPUTピンをHIGHに
                     Wire.write(regionColor[i]);  // 領域の色（1バイト）
-                    Wire.write(points[i][j]);    // ポイント（1バイト）
+                    Wire.write(points[i][j]);
+                    Serial.print("B sent to master: ");
+                    Serial.print(regionColor[i]);
+                    Serial.print(", ");
+                    Serial.println(points[i][j]);    // ポイント（1バイト）
                 } else {
                     digitalWrite(outputPins[i][j], LOW);  // センサーがLOWのとき、OUTPUTピンをLOWに
                     Wire.write(0);  // センサーがLOWの場合は0を送信
-                    Wire.write(0);  // ポイントの値も0に設定
+                    Wire.write(0);
+                    Serial.println("Nothing detected on CdS");  // ポイントの値も0に設定
                 }
-                Serial.print("B sent to master: ");
-                Serial.print(regionColor[i]);
-                Serial.print(", ");
-                Serial.println(points[i][j]);
             }
         }
     }
 }
-
