@@ -24,6 +24,16 @@ int regionColor[2] = {0, 0};
 int slaveAddress = 10;  // スレーブのアドレス
 int threshold = 20;
 
+// センサーの前回の状態を保存するための配列
+int previousSensorState[2][5] = { 
+    {LOW, LOW, LOW, LOW, LOW}, 
+    {LOW, LOW, LOW, LOW, LOW} 
+};
+
+// I2C送信用の一時保存領域
+int lastRegionColor = 0;
+int lastPoints = 0;
+
 void setup() {
     Wire.begin(slaveAddress);  // スレーブアドレスを指定して開始
     Wire.onRequest(requestEvent);  // マスターからのリクエストがあったときの処理
@@ -37,6 +47,8 @@ void setup() {
             }
         }
     }
+    
+    // CDSセンサー用のピンを初期化
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 5; j++) {
             if (cdsSensorPins[i][j] != -1) {
@@ -44,7 +56,6 @@ void setup() {
             }
         }
     }
-
 }
 
 void loop() {
@@ -54,18 +65,32 @@ void loop() {
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 5; j++) {
             if (cdsSensorPins[i][j] != -1) {
-                int sensorValue = digitalRead(cdsSensorPins[i][j]);
-                // センサーの値に基づいてOUTPUTピンを制御
-                if (sensorValue == HIGH) {
-                    digitalWrite(outputPins[i][j], HIGH);  // センサーがHIGHのとき、OUTPUTピンをHIGHに
-                } else {
-                    digitalWrite(outputPins[i][j], LOW);   // センサーがLOWのとき、OUTPUTピンをLOWに
+                int currentSensorValue = digitalRead(cdsSensorPins[i][j]);
+
+                // 前回の状態と現在の状態を比較し、立ち上がりエッジを検出
+                if (currentSensorValue == HIGH && previousSensorState[i][j] == LOW) {
+                    // センサーがLOWからHIGHに変わった時
+                    digitalWrite(outputPins[i][j], HIGH);  // OUTPUTピンをHIGHに
+
+                    // データを一時保存（I2Cリクエストが来たときに送信）
+                    lastRegionColor = regionColor[i];
+                    lastPoints = points[i][j];
+
+                    Serial.print("Data ready to send: Region Color = ");
+                    Serial.print(lastRegionColor);
+                    Serial.print(", Points = ");
+                    Serial.println(lastPoints);
+                } else if (currentSensorValue == LOW) {
+                    // センサーがLOWの場合、OUTPUTピンをLOWに
+                    digitalWrite(outputPins[i][j], LOW);
                 }
+
+                // 前回のセンサーの状態を更新
+                previousSensorState[i][j] = currentSensorValue;
             }
         }
     }
 }
-
 
 void update_region() {
     for (int i = 0; i < 2; i++) {
@@ -91,52 +116,17 @@ void update_region() {
                 regionColor[i] = biggest_index + 1;
             }
         }
-
     }
 }
 
 // I2Cリクエスト時の処理
-/*
 void requestEvent() {
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 5; j++) {
-            if (cdsSensorPins[i][j] != -1 && digitalRead(cdsSensorPins[i][j]) == HIGH) {
-                // regionColorとpointsを1バイトずつ送信
-                Wire.write(regionColor[i]);  // 領域の色（1バイト）
-                Wire.write(points[i][j]);    // ポイント（1バイト）
+    // マスターからのリクエストに応じて、最後に保存したregionColorとpointsを送信
+    Wire.write(lastRegionColor);  // 領域の色（1バイト）
+    Wire.write(lastPoints);       // ポイント（1バイト）
 
-                Serial.print("A sent to master: ");
-                Serial.print(regionColor[i]);
-                Serial.print(", ");
-                Serial.println(points[i][j]);
-            }
-        }
-    }
+    Serial.print("Sent to master: Region Color = ");
+    Serial.print(lastRegionColor);
+    Serial.print(", Points = ");
+    Serial.println(lastPoints);
 }
-*/
-
-void requestEvent() {
-    for (int i = 0; i < 2; i++) {  // 2つの領域に対してデータを送信
-        for (int j = 0; j < 5; j++) {
-            if (cdsSensorPins[i][j] != -1) {
-                int sensorValue = digitalRead(cdsSensorPins[i][j]);
-                // センサーの値に基づいて出力ピンを制御
-                if (sensorValue == HIGH) {
-                    digitalWrite(outputPins[i][j], HIGH);  // センサーがHIGHのとき、OUTPUTピンをHIGHに
-                    Wire.write(regionColor[i]);  // 領域の色（1バイト）
-                    Wire.write(points[i][j]);
-                    Serial.print("A sent to master: ");
-                    Serial.print(regionColor[i]);
-                    Serial.print(", ");
-                    Serial.println(points[i][j]);    // ポイント（1バイト）
-                } else {
-                    digitalWrite(outputPins[i][j], LOW);  // センサーがLOWのとき、OUTPUTピンをLOWに
-                    Wire.write(0);  // センサーがLOWの場合は0を送信
-                    Wire.write(0);
-                    Serial.println("Nothing detected on CdS");  // ポイントの値も0に設定
-                }
-            }
-        }
-    }
-}
-
