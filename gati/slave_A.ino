@@ -1,8 +1,10 @@
+//This program is for gati
+//2 cds for small points and 3 cds for normal points
 #include <Wire.h>
 
 int outputPins[2][5] = {
-    {2, -1, -1, -1, -1},  // Group 1 of OUTPUT pins
-    {3, -1, -1, -1, -1}   // Group 2 of OUTPUT pins
+    {2, 3, -1, -1, -1},  // Group 1 of OUTPUT pins
+    {4, 5, 6, -1, -1}   // Group 2 of OUTPUT pins
 };
 
 int rgbSensorPins[2][3] = {
@@ -11,13 +13,13 @@ int rgbSensorPins[2][3] = {
 };
 
 int cdsSensorPins[2][5] = {
-    {6, -1, -1, -1, -1},
-    {7, -1, -1, -1, -1}
+    {7, 8, -1, -1, -1},
+    {9, 10, 11, -1, -1}
 };
 
 int points[2][5] = {
-    {1, 0, 0, 0, 0},
-    {3, 0, 0, 0, 0}
+    {3, 3, 0, 0, 0},
+    {5, 5, 5, 0, 0}
 };
 
 int regionColor[2] = {0, 0};

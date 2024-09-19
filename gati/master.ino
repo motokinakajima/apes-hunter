@@ -40,7 +40,7 @@ void loop() {
 
 
   if (digitalRead(resetPins[0]) == LOW){
-    Serial.println("reset RED");
+    //Serial.println("reset RED");
     totalPointsRed = 0;
   }
   if (digitalRead(resetPins[1]) == LOW){
