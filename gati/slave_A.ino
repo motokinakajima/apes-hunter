@@ -72,6 +72,10 @@ void loop() {
             if (cdsSensorPins[i][j] != -1) {
                 int currentSensorValue = digitalRead(cdsSensorPins[i][j]);
                 //lastPoints = 0;
+                Serial.print("CdS Sensor Pin: ");
+                Serial.print(cdsSensorPins[i][j]);
+                Serial.print(" Value: ");
+                Serial.println(sensorValue);
 
                 // 前回の状態と現在の状態を比較し、立ち上がりエッジを検出
                 if (currentSensorValue == HIGH && previousSensorState[i][j] == LOW) {
